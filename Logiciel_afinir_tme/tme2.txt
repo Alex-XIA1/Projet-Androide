@@ -1,0 +1,11 @@
+Question 1:
+Pour avoir un code "générique" qui gère de nombreuses formes graphiques, 
+vous pouvez utiliser un concept de programmation orientée objet appelé classe abstraite. 
+Vous pouvez définir une classe abstraite appelée "FormeGraphique" qui définit les méthodes communes à toutes les formes graphiques (par exemple, "dessiner", "déplacer", "redimensionner"). Ensuite, vous pouvez créer des classes dérivées pour chaque forme graphique 
+(par exemple, "Carré", "Rectangle", "Ellipse", "Cercle", "Trait").
+Chaque classe dérivée peut surcharger les méthodes définies dans la classe de base pour fournir une implémentation spécifique à la forme.
+
+
+Pour avoir un code "générique", on pourrait passer par une classe "mère" abstraite qui sera
+hérité par les formes qu'on souhaite implémenter. 
+On aura dans la classe 'mère' des méthodes communes à toutes les formes graphiques, comme dessiner, ...
