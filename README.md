@@ -46,9 +46,5 @@ L'originalité de ce travail est que, contrairement aux techniques actuelles qui
 
 - compétence empirique (réalisation d’étude utilisateur)
 
-== Cadre ==
-vous serez accompagnés par deux chercheurs en IHM. Ce travail pourrait donner lieu à une publication scientifique / stage.
-
-
 
 
