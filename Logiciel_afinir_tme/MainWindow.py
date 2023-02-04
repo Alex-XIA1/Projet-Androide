@@ -6,7 +6,6 @@ from Canvas import *
 import resources
 
 class MainWindow(QMainWindow):
-
     def __init__(self, parent = None ):
         QMainWindow.__init__(self, parent )
         print( "init mainwindow")
@@ -14,7 +13,6 @@ class MainWindow(QMainWindow):
 
         self.cont = QWidget(self)
         self.setCentralWidget(self.cont)
-
         self.canvas = Canvas(self.cont)
         #self.setCentralWidget(self.canvas)
         
@@ -29,30 +27,27 @@ class MainWindow(QMainWindow):
         bar = self.menuBar()
         fileMenu = bar.addMenu("File")
 
+        # Menu Color
         colorMenu = bar.addMenu("Color")
         actPen = fileMenu.addAction(QIcon(":/icons/pen.png"), "&Pen color", self.pen_color, QKeySequence("Ctrl+P"))
         actBrush = fileMenu.addAction(QIcon(":/icons/brush.png"), "&Brush color", self.brush_color, QKeySequence("Ctrl+B"))
         
-
-
         actRed = colorMenu.addAction("Rouge")
-        actRed.triggered.connect(lambda: self.canvas.setCol(Qt.red))
+        actRed.triggered.connect(lambda: self.canvas.set_color(Qt.red))
         colorMenu.addAction(actRed)
         actBlue = colorMenu.addAction("Bleu")
-        actBlue.triggered.connect(lambda: self.canvas.setCol(Qt.blue))
+        actBlue.triggered.connect(lambda: self.canvas.set_color(Qt.blue))
         colorMenu.addAction(actBlue)
         actGreen = colorMenu.addAction("Vert")
-        actGreen.triggered.connect(lambda: self.canvas.setCol(Qt.green))
+        actGreen.triggered.connect(lambda: self.canvas.set_color(Qt.green))
         colorMenu.addAction(actGreen)
         actOther = colorMenu.addAction("Autre")
-        actOther.triggered.connect(lambda: self.canvas.setCol(QColorDialog.getColor()))
+        actOther.triggered.connect(lambda: self.canvas.set_color(QColorDialog.getColor()))
         colorMenu.addAction(actOther)
-
 
         colorToolBar = QToolBar("Color")
         self.addToolBar( colorToolBar )
         
-
         colorToolBar.addAction( actPen )
         colorToolBar.addAction( actBrush )
 
@@ -77,10 +72,7 @@ class MainWindow(QMainWindow):
         modeToolBar.addAction( actMove )
         modeToolBar.addAction( actDraw )
         modeToolBar.addAction( actSelect )
-
-
         self.cont.setLayout(layout)
-
 
 
     ##############
