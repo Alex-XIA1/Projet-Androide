@@ -7,6 +7,7 @@ class Canvas(QWidget):
     def __init__(self, parent = None):
         print("class Canvas")
         super(Canvas,self).__init__()
+        self.parent = parent
         self.setMinimumSize(300,300)
         self.setMouseTracking(True)
         self.cursorPos = None
@@ -14,11 +15,12 @@ class Canvas(QWidget):
 
         # par défaut
         self.currentTool = "drawRect"
-        self.bkcolor = Qt.blue
+        self.bkcolor = QColor(Qt.blue)
         self.width = 1
         self.Lforms = []
         self.mode = 'draw'
         self.selected = None
+        self.painterTranslation = QPoint(0,0)
     
     
     def mousePressEvent(self, event):
@@ -26,35 +28,41 @@ class Canvas(QWidget):
             p = event.pos()
             for i in range(len(self.Lforms)-1, -1, -1):
                 if self.Lforms[i][1].contains(p):
+                    if self.selected != None:
+                        self.Lforms.append(self.selected)
                     self.selected = self.Lforms.pop(i)
                     self.update()
                     break
         else:
-            self.pStart = event.pos()
+            self.pStart = event.pos() 
             self.cursorPos = event.pos()
+            self.pStart-= self.painterTranslation
+            self.cursorPos-= self.painterTranslation
             if self.mode=='draw':
                 rect = QRect(self.pStart.x(), self.pStart.y(), 0, 0)
                 self.Lforms.append([self.currentTool, rect, self.bkcolor])
     
     def mouseMoveEvent(self, event):
         if self.pStart != None:
-            o_xt, o_yt = self.cursorPos.x() - self.pStart.x(), self.cursorPos.y() - self.pStart.y()
+            oldV = self.cursorPos - self.pStart
             self.cursorPos = event.pos()
             if self.mode=='draw':
+                self.cursorPos-= self.painterTranslation
                 self.Lforms[-1][1].setBottomRight(self.cursorPos)
 
             elif self.mode=='move':
-                xt, yt = self.cursorPos.x() - self.pStart.x(), self.cursorPos.y() - self.pStart.y()
-                for _,form,_ in self.Lforms:
-                    form.translate(xt-o_xt, yt-o_yt)
+                V = self.cursorPos - self.pStart - oldV
+                self.painterTranslation+= V
             self.update()
 
     def mouseReleaseEvent(self, event):
-        self.cursorPos = event.pos()
+        if self.mode == 'draw':
+            self.add_object()
         self.pStart = None
         
     def paintEvent(self, event):
         painter = QPainter(self)
+        painter.translate(self.painterTranslation)
         for affiche, form, c in self.Lforms:
             painter.setPen(QPen(c, self.width))
             painter.setBrush(c)
@@ -73,15 +81,46 @@ class Canvas(QWidget):
         print("reset")
 
     def add_object(self):
-        print("add object")
+        affiche, form, c = self.Lforms[-1]
+        s = ''
+        if affiche == 'drawRect':
+            s = 'rectangle '
+        else:
+            s = 'ellipse '
+        print(form.getRect())
+        x, y, w, h = form.getRect()
+        color = c.getRgb()
+        s = '{} {} {} {} {} {}'.format(s,x,y,w,h,color)
+        self.parent.log_action(s)
 
     def set_color(self, color):
         print("set color")
-        if self.mode == 'select' and self.selected!=None and self.selected[1]!=color:
-            self.selected[2] = color
-            self.update()
+        if self.mode == 'select' and self.selected!=None:
+            if self.selected[1]!=color:
+                self.selected[2] = color
+                self.update()
         else:
             self.bkcolor = color
+    
+    def getImage(self):
+        size = self.size()
+        x, y = size.width(), size.height()
+        image = QImage(x, y, QImage.Format_ARGB32_Premultiplied)
+        painter = QPainter(image)
+        for affiche, form, c in self.Lforms:
+            painter.setPen(QPen(c, self.width))
+            painter.setBrush(c)
+            getattr(painter, affiche)(form)
+
+        if self.selected!=None:
+            affiche, form, c = self.selected
+            pen = QPen(Qt.cyan, 2,  Qt.DashLine)
+            painter.setPen(pen)
+            painter.setBrush(c)
+            painter.setOpacity(0.6)
+            getattr(painter, affiche)(form)
+        return image
+
 
     @pyqtSlot()
     def setTool(self,tool):
