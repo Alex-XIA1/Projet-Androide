@@ -13,14 +13,20 @@ class Canvas(QWidget):
         self.cursorPos = None
         self.pStart = None
 
-        # par défaut
-        self.currentTool = "drawRect"
+        # attributs d'affichage
         self.bkcolor = QColor(Qt.blue)
         self.width = 1
-        self.Lforms = []
-        self.mode = 'draw'
-        self.selected = None
         self.painterTranslation = QPoint(0,0)
+
+        # attributs mode
+        self.mode = 'draw'
+        self.currentTool = "drawRect"
+
+        # attributs memoire
+        self.Lforms = []
+        self.selected = None
+        self.copy = None
+
     
     
     def mousePressEvent(self, event):
@@ -34,10 +40,8 @@ class Canvas(QWidget):
                     self.update()
                     break
         else:
-            self.pStart = event.pos() 
+            self.pStart = event.pos() - self.painterTranslation
             self.cursorPos = event.pos()
-            self.pStart-= self.painterTranslation
-            self.cursorPos-= self.painterTranslation
             if self.mode=='draw':
                 rect = QRect(self.pStart.x(), self.pStart.y(), 0, 0)
                 self.Lforms.append([self.currentTool, rect, self.bkcolor])
@@ -63,6 +67,7 @@ class Canvas(QWidget):
     def paintEvent(self, event):
         painter = QPainter(self)
         painter.translate(self.painterTranslation)
+        
         for affiche, form, c in self.Lforms:
             painter.setPen(QPen(c, self.width))
             painter.setBrush(c)
@@ -140,11 +145,24 @@ class Canvas(QWidget):
     
     @pyqtSlot()
     def setMode(self, mode):
-        if self.mode == "select" and mode!='select':
+        if self.mode == "select" and mode!='select' and self.selected!=None:
             self.Lforms.append(self.selected)
             self.selected = None
             self.update()
         self.mode = mode
+
+    @pyqtSlot()
+    def copy_element(self):
+        if self.mode == "select":
+            self.copy = self.selected
+
+    @pyqtSlot()
+    def paste_element(self):
+        if self.copy!=None:
+            affiche, form, c = self.copy
+            self.copy = affiche, form.translated(20, 20), c
+            self.Lforms.append(self.copy)
+            self.update()
         
     def deleteLastObject(self):
         self.Lforms.pop()

@@ -24,7 +24,16 @@ class MainWindow(QMainWindow):
         layout.addWidget(self.textEdit)
 
         bar = self.menuBar()
+        # File Menu
         fileMenu = bar.addMenu("File")
+
+        # Edit Menu
+        editMenu = bar.addMenu("Edit")
+        actCopy= editMenu.addAction("Copy")
+        actCopy.triggered.connect(lambda: self.canvas.copy_element())
+
+        actPaste=  editMenu.addAction("Paste")
+        actPaste.triggered.connect(lambda: self.canvas.paste_element())
 
         # Menu Color
         colorMenu = bar.addMenu("Color")
