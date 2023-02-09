@@ -9,7 +9,7 @@ class MainWindow(QMainWindow):
     def __init__(self, parent = None ):
         QMainWindow.__init__(self, parent )
         print( "init mainwindow")
-        self.resize(600, 500)
+        self.resize(1200, 1000)
 
         self.cont = QWidget(self)
         self.setCentralWidget(self.cont)
@@ -21,26 +21,38 @@ class MainWindow(QMainWindow):
         self.textEdit.setPlainText("Je suis une zone de texte")
 
         layout = QVBoxLayout()
+
+        sp = QSlider(Qt.Horizontal)
+        sp.setMinimum(1)
+        sp.setMaximum(10)
+        sp.valueChanged.connect(self.scaleChange)
+        
+        layout.addWidget(sp)
         layout.addWidget(self.canvas)
         layout.addWidget(self.textEdit)
 
         bar = self.menuBar()
         fileMenu = bar.addMenu("File")
-
         # Menu Color
         colorMenu = bar.addMenu("Color")
         actPen = fileMenu.addAction(QIcon(":/icons/pen.png"), "&Pen color", self.pen_color, QKeySequence("Ctrl+P"))
+        
+
+
         actBrush = fileMenu.addAction(QIcon(":/icons/brush.png"), "&Brush color", self.brush_color, QKeySequence("Ctrl+B"))
         
         actRed = colorMenu.addAction("Rouge")
         actRed.triggered.connect(lambda: self.canvas.set_color(Qt.red))
         colorMenu.addAction(actRed)
+
         actBlue = colorMenu.addAction("Bleu")
         actBlue.triggered.connect(lambda: self.canvas.set_color(Qt.blue))
         colorMenu.addAction(actBlue)
+
         actGreen = colorMenu.addAction("Vert")
         actGreen.triggered.connect(lambda: self.canvas.set_color(Qt.green))
         colorMenu.addAction(actGreen)
+
         actOther = colorMenu.addAction("Autre")
         actOther.triggered.connect(lambda: self.canvas.set_color(QColorDialog.getColor()))
         colorMenu.addAction(actOther)
@@ -67,11 +79,14 @@ class MainWindow(QMainWindow):
         actDraw = modeMenu.addAction(QIcon(":/icons/draw.png"), "&Draw", self.draw)
         actSelect = modeMenu.addAction(QIcon(":/icons/select.png"), "&Select", self.select)
 
+        
+
         modeToolBar = QToolBar("Navigation")
         self.addToolBar( modeToolBar )
         modeToolBar.addAction( actMove )
         modeToolBar.addAction( actDraw )
         modeToolBar.addAction( actSelect )
+        modeToolBar.addAction
         self.cont.setLayout(layout)
 
 
@@ -108,6 +123,10 @@ class MainWindow(QMainWindow):
     def log_action(self, str):
         content = self.textEdit.toPlainText()
         self.textEdit.setPlainText( content + "\n" + str)
+
+    def scaleChange(self, value):
+        self.log_action("Action change")
+        self.canvas.setScale(value)
 
 if __name__=="__main__":
     app = QApplication(sys.argv)

@@ -7,6 +7,7 @@ class Canvas(QWidget):
     def __init__(self, parent = None):
         print("class Canvas")
         super(Canvas,self).__init__()
+
         self.setMinimumSize(300,300)
         self.setMouseTracking(True)
         self.cursorPos = None
@@ -19,6 +20,10 @@ class Canvas(QWidget):
         self.Lforms = []
         self.mode = 'draw'
         self.selected = None
+        self.toTranslateX = 0
+        self.toTranslateY = 0
+        self.toScale = 1
+
     
     
     def mousePressEvent(self, event):
@@ -40,13 +45,14 @@ class Canvas(QWidget):
         if self.pStart != None:
             o_xt, o_yt = self.cursorPos.x() - self.pStart.x(), self.cursorPos.y() - self.pStart.y()
             self.cursorPos = event.pos()
+
             if self.mode=='draw':
                 self.Lforms[-1][1].setBottomRight(self.cursorPos)
 
             elif self.mode=='move':
-                xt, yt = self.cursorPos.x() - self.pStart.x(), self.cursorPos.y() - self.pStart.y()
-                for _,form,_ in self.Lforms:
-                    form.translate(xt-o_xt, yt-o_yt)
+                x, y = self.cursorPos.x() - self.pStart.x(), self.cursorPos.y() - self.pStart.y()
+                self.toTranslateX += x - o_xt
+                self.toTranslateY += y - o_yt
             self.update()
 
     def mouseReleaseEvent(self, event):
@@ -55,6 +61,9 @@ class Canvas(QWidget):
         
     def paintEvent(self, event):
         painter = QPainter(self)
+        painter.translate(float (self.toTranslateX), float (self.toTranslateY))
+        painter.scale(float(self.toScale), float(self.toScale))
+
         for affiche, form, c in self.Lforms:
             painter.setPen(QPen(c, self.width))
             painter.setBrush(c)
@@ -106,6 +115,14 @@ class Canvas(QWidget):
             self.selected = None
             self.update()
         self.mode = mode
+
+    @pyqtSlot()
+    def setScale(self, value):
+        if self.toScale != value : 
+            self.toScale = value
+            self.update()
+        
+
         
     def deleteLastObject(self):
         self.Lforms.pop()
