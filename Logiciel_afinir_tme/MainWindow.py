@@ -9,38 +9,59 @@ class MainWindow(QMainWindow):
     def __init__(self, parent = None ):
         QMainWindow.__init__(self, parent )
         print( "init mainwindow")
-        self.resize(600, 500)
+        self.resize(500, 500)
 
         self.cont = QWidget(self)
         self.setCentralWidget(self.cont)
-        self.canvas = Canvas(self.cont)
+        self.canvas = Canvas(self)
         #self.setCentralWidget(self.canvas)
         
 
         self.textEdit = QTextEdit(self.cont)
-        self.textEdit.setPlainText("Je suis une zone de texte")
 
         layout = QVBoxLayout()
+
+        sp = QSlider(Qt.Horizontal)
+        sp.setMinimum(1)
+        sp.setMaximum(10)
+        sp.valueChanged.connect(self.scaleChange)
+        
+        layout.addWidget(sp)
         layout.addWidget(self.canvas)
         layout.addWidget(self.textEdit)
 
         bar = self.menuBar()
+        # File Menu
         fileMenu = bar.addMenu("File")
+
+        # Edit Menu
+        editMenu = bar.addMenu("Edit")
+        actCopy= editMenu.addAction("Copy")
+        actCopy.triggered.connect(lambda: self.canvas.copy_element())
+
+        actPaste=  editMenu.addAction("Paste")
+        actPaste.triggered.connect(lambda: self.canvas.paste_element())
 
         # Menu Color
         colorMenu = bar.addMenu("Color")
         actPen = fileMenu.addAction(QIcon(":/icons/pen.png"), "&Pen color", self.pen_color, QKeySequence("Ctrl+P"))
+        
+
+
         actBrush = fileMenu.addAction(QIcon(":/icons/brush.png"), "&Brush color", self.brush_color, QKeySequence("Ctrl+B"))
         
         actRed = colorMenu.addAction("Rouge")
-        actRed.triggered.connect(lambda: self.canvas.set_color(Qt.red))
+        actRed.triggered.connect(lambda: self.canvas.set_color(QColor(Qt.red)))
         colorMenu.addAction(actRed)
+
         actBlue = colorMenu.addAction("Bleu")
-        actBlue.triggered.connect(lambda: self.canvas.set_color(Qt.blue))
+        actBlue.triggered.connect(lambda: self.canvas.set_color(QColor(Qt.blue)))
         colorMenu.addAction(actBlue)
+
         actGreen = colorMenu.addAction("Vert")
-        actGreen.triggered.connect(lambda: self.canvas.set_color(Qt.green))
+        actGreen.triggered.connect(lambda: self.canvas.set_color(QColor(Qt.green)))
         colorMenu.addAction(actGreen)
+
         actOther = colorMenu.addAction("Autre")
         actOther.triggered.connect(lambda: self.canvas.set_color(QColorDialog.getColor()))
         colorMenu.addAction(actOther)
@@ -52,9 +73,11 @@ class MainWindow(QMainWindow):
         colorToolBar.addAction( actBrush )
 
         shapeMenu = bar.addMenu("Shape")
-        actRectangle = fileMenu.addAction(QIcon(":/icons/rectangle.png"), "&Rectangle", self.rectangle )
-        actEllipse = fileMenu.addAction(QIcon(":/icons/ellipse.png"), "&Ellipse", self.ellipse)
-        actFree = fileMenu.addAction(QIcon(":/icons/free.png"), "&Free drawing", self.free_drawing)
+        actRectangle = shapeMenu.addAction(QIcon(":/icons/rectangle.png"), "&Rectangle", self.rectangle )
+        actEllipse = shapeMenu.addAction(QIcon(":/icons/ellipse.png"), "&Ellipse", self.ellipse)
+        actFree = shapeMenu.addAction(QIcon(":/icons/free.png"), "&Free drawing", self.free_drawing)
+
+        actSave = fileMenu.addAction(QIcon(":/image/images/save.png"), "&Save", self.save)
 
         shapeToolBar = QToolBar("Shape")
         self.addToolBar( shapeToolBar )
@@ -67,11 +90,14 @@ class MainWindow(QMainWindow):
         actDraw = modeMenu.addAction(QIcon(":/icons/draw.png"), "&Draw", self.draw)
         actSelect = modeMenu.addAction(QIcon(":/icons/select.png"), "&Select", self.select)
 
+        
+
         modeToolBar = QToolBar("Navigation")
         self.addToolBar( modeToolBar )
         modeToolBar.addAction( actMove )
         modeToolBar.addAction( actDraw )
         modeToolBar.addAction( actSelect )
+        modeToolBar.addAction
         self.cont.setLayout(layout)
 
 
@@ -105,9 +131,17 @@ class MainWindow(QMainWindow):
         self.log_action("Mode: select")
         self.canvas.setMode('select')
 
+    def save(self):
+        image = self.canvas.getImage()
+        image.save('image.png')
+
     def log_action(self, str):
         content = self.textEdit.toPlainText()
         self.textEdit.setPlainText( content + "\n" + str)
+
+    def scaleChange(self, value):
+        self.log_action("Action change")
+        self.canvas.setScale(value)
 
 if __name__=="__main__":
     app = QApplication(sys.argv)
