@@ -34,8 +34,9 @@ class Canvas(QWidget):
 
         self.copy = None
 
-
-    
+        #ETAT POUR LE PLAYER TEST
+        self.nbRectBlu = 0
+        self.nbRectRed = 0
     
     def mousePressEvent(self, event):
         if self.mode == 'select':
@@ -93,7 +94,6 @@ class Canvas(QWidget):
             painter.setOpacity(0.6)
             getattr(painter, affiche)(form)
 
-
     def reset(self):
         print("reset")
 
@@ -138,7 +138,6 @@ class Canvas(QWidget):
             getattr(painter, affiche)(form)
         return image
 
-
     @pyqtSlot()
     def setTool(self,tool):
         if self.mode == 'select':
@@ -182,7 +181,56 @@ class Canvas(QWidget):
             self.Lforms.append(self.copy)
             self.update()
 
-        
     def deleteLastObject(self):
         self.Lforms.pop()
         self.update()
+
+
+################################################################
+#Fonctions pour le test du players
+
+    def dessinRedRect(self) : 
+        rect = ("drawRect", QRect(10, 10, 10, 10) , QColor(Qt.red))
+        self.Lforms.append(rect)
+        self.update()
+        
+        # print("dessinRedRect")
+        oldState = (self.nbRectBlu, self.nbRectRed, self.currentTool)
+        self.nbRectRed += 1
+        self.parent.logger.addRow(oldState, (self.nbRectBlu, self.nbRectRed, self.currentTool), "dessinRedRect")
+        
+    
+    def swapColor(self) : 
+        oldState = (self.nbRectBlu, self.nbRectRed, self.currentTool)
+        if self.bkcolor == QColor(Qt.blue): 
+            self.bkcolor = QColor(Qt.red)
+        else : 
+            self.bkcolor = QColor(Qt.blue)
+        
+        # print("swapColor")
+        self.parent.logger.addRow(oldState, (self.nbRectBlu, self.nbRectRed, self.currentTool), "swapColor")
+        
+        
+
+    def dessinRect(self) : 
+        rect = ("drawRect", QRect(10, 10, 10, 10) , self.bkcolor)
+        
+        self.Lforms.append(rect)
+        self.update()
+
+        oldState = (self.nbRectBlu, self.nbRectRed, self.currentTool)
+
+        #ADD LOG
+        # print("dessinRect")
+        if (self.bkcolor ==  QColor(Qt.blue)) :
+            self.nbRectBlu += 1
+        else : 
+            self.nbRectRed += 1
+            
+        self.parent.logger.addRow(oldState, (self.nbRectBlu, self.nbRectRed, self.currentTool), "dessinRect")
+        
+
+
+
+    
+

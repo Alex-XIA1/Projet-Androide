@@ -8,45 +8,56 @@ import resources
 import pyautogui
 from threading import Thread
 import time
+import random
 import Logger
 
-class Player() : 
+
+#CE PLAYER VA LANCER DES COMMANDES ALEATOIRE PARMIS  3 : 
+    #Changer de couleur entre rouge et bleu
+    #Dessiner un rect de la couleur choisie 
+    #Dessiner un rect rouge
+
+    #L etat de l app est : 
+    #(nbrCarréRouge, nbrCarréBleu, outilSelectioné)
+
+    #Le fichier generé (logTest) contient : 
+    #[AncienEtat, NouveauEtat, Commande]
+
+    #Vous pouvez changer la variable nbIteration pour generer les données
+
+class PlayerBasic() : 
     def __init__(self) : 
-        #Le player commence par créer une instance de l'application sur laquelle il va lancer des test
-        #Remarque : Creation de l'app peut se faire ne dehors du player si vous voulez ¯\_(ツ)_/¯
         app = QApplication(sys.argv) 
         window = MainWindow()
         window.show()
-        
-        
 
         #children va recevoir la liste des QAction de l'application
         children = window.findChildren(QAction)
-        
-        #Exemple activer l'ellipse
-        for c in children : 
-            print(c.text())
-            if (c.text() == "&Ellipse") : 
-                c.activate(QAction.Trigger)
+        self.canvas = window.findChild(Canvas)
 
-        #Creation d'un thread pour le Player 
-        #AU total : 2 thread (pour le Player et pour l'application)
-        #Ca permet de ne pas faire lagé l'application si le player decide d'attendre. 
+        self.actionsPossibles = [
+            self.canvas.dessinRect, 
+            self.canvas.dessinRedRect, 
+            self.canvas.swapColor
+        ]
+
         playerThread = Thread(target=self.behaviour)
         playerThread.start()
-        
-        
+
         app.exec_()
-        
-        #Jointure des thread (destruction)
+
         playerThread.join()
         
-
     def behaviour(self) : 
-        #Player attend 1sec avant de commencer sa behaviour histoire d'attendre que l'application se charge completement
         time.sleep(1)
-        self.random_draw()
 
+        nb_iteration = 1000
+        for i in range(nb_iteration) :     
+            f = random.choice(self.actionsPossibles)
+            f()
+
+    def random_action(self) : 
+        print("Random action")       
 
     def random_draw(self) : 
         #Click sur un endroit dans le canvas puis drag la souris vers un autre endroit.
@@ -74,5 +85,5 @@ class Player() :
         print("mousedrag to a random button")
 
 if __name__=="__main__":    
-    player = Player()
+    basicPlayer = PlayerBasic()
     

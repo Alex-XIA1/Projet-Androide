@@ -4,6 +4,7 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
 from Canvas import *
 import resources
+from Logger import Logger
 
 class MainWindow(QMainWindow):
     def __init__(self, parent = None ):
@@ -16,6 +17,7 @@ class MainWindow(QMainWindow):
         self.canvas = Canvas(self)
         #self.setCentralWidget(self.canvas)
         
+        self.logger = Logger("LogTest")
 
         self.textEdit = QTextEdit(self.cont)
 
@@ -100,7 +102,10 @@ class MainWindow(QMainWindow):
         modeToolBar.addAction
         self.cont.setLayout(layout)
 
-
+    def closeEvent(self, event): 
+        self.logger.file.close()
+        event.accept()
+        
     ##############
     def pen_color(self):
         self.log_action("choose pen color")
@@ -149,3 +154,4 @@ if __name__=="__main__":
     window = MainWindow()
     window.show()
     app.exec_()
+
