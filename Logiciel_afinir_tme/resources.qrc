@@ -13,6 +13,9 @@
     <file>icons/select.png</file>
     <file>icons/zoom-in.png</file>
     <file>icons/zoom-out.png</file>
+    <file>icons/cut.png</file>
+    <file>icons/paste.png</file>
+    <file>icons/copy.png</file>
   </qresource>
 </RCC>
 

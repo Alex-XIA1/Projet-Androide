@@ -1,13 +1,16 @@
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
+import numpy as np
 
 
 class Canvas(QWidget):
     def __init__(self, parent = None):
         print("class Canvas")
         super(Canvas,self).__init__()
+
         self.parent = parent
+
         self.setMinimumSize(300,300)
         self.setMouseTracking(True)
         self.cursorPos = None
@@ -25,9 +28,16 @@ class Canvas(QWidget):
         # attributs memoire
         self.Lforms = []
         self.selected = None
+
+        self.toTranslateX = 0
+        self.toTranslateY = 0
+        self.toScale = 1
+
         self.copy = None
 
-    
+        #ETAT POUR LE PLAYER TEST
+        self.nbRectBlu = 0
+        self.nbRectRed = 0
     
     def mousePressEvent(self, event):
         if self.mode == 'select':
@@ -46,17 +56,25 @@ class Canvas(QWidget):
                 rect = QRect(self.pStart.x(), self.pStart.y(), 0, 0)
                 self.Lforms.append([self.currentTool, rect, self.bkcolor])
     
+    def generateRect(self):
+        size = self.size()
+        width, height = size.width(), size.height()
+        x1, x2 = np.random.randint(0, [width, height])
+        return QRect(x1, x2, 10, 10)
+
+
     def mouseMoveEvent(self, event):
         if self.pStart != None:
             oldV = self.cursorPos - self.pStart
             self.cursorPos = event.pos()
+
             if self.mode=='draw':
                 self.cursorPos-= self.painterTranslation
                 self.Lforms[-1][1].setBottomRight(self.cursorPos)
 
             elif self.mode=='move':
                 V = self.cursorPos - self.pStart - oldV
-                self.painterTranslation+= V
+                self.painterTranslation += V
             self.update()
 
     def mouseReleaseEvent(self, event):
@@ -66,6 +84,9 @@ class Canvas(QWidget):
         
     def paintEvent(self, event):
         painter = QPainter(self)
+     
+        # painter.scale(float(self.toScale), float(self.toScale))
+
         painter.translate(self.painterTranslation)
         
         for affiche, form, c in self.Lforms:
@@ -81,9 +102,12 @@ class Canvas(QWidget):
             painter.setOpacity(0.6)
             getattr(painter, affiche)(form)
 
-
     def reset(self):
-        print("reset")
+        self.Lforms = []
+        self.selected = None
+        self.nbRectBlu = 0
+        self.nbRectRed = 0
+        self.bkcolor = QColor(Qt.blue)
 
     def add_object(self):
         affiche, form, c = self.Lforms[-1]
@@ -126,7 +150,6 @@ class Canvas(QWidget):
             getattr(painter, affiche)(form)
         return image
 
-
     @pyqtSlot()
     def setTool(self,tool):
         if self.mode == 'select':
@@ -152,6 +175,12 @@ class Canvas(QWidget):
         self.mode = mode
 
     @pyqtSlot()
+
+    def setScale(self, value):
+        if self.toScale != value : 
+            self.toScale = value
+            self.update()
+
     def copy_element(self):
         if self.mode == "select":
             self.copy = self.selected
@@ -163,7 +192,63 @@ class Canvas(QWidget):
             self.copy = affiche, form.translated(20, 20), c
             self.Lforms.append(self.copy)
             self.update()
-        
+
     def deleteLastObject(self):
         self.Lforms.pop()
         self.update()
+
+
+################################################################
+#Fonctions pour le test du players
+
+    def dessinRedRect(self) : 
+        rect = ("drawRect", self.generateRect(),  QColor(Qt.red))
+        self.Lforms.append(rect)
+        self.update()
+        
+        # print("dessinRedRect")
+        oldState = (self.nbRectBlu, self.nbRectRed, self.bkcolor.getRgb())
+        self.nbRectRed += 1
+        self.parent.logger.addRow(oldState, (self.nbRectBlu, self.nbRectRed, self.bkcolor.getRgb()), "dessinRedRect")
+    
+    def dessinBlueRect(self) : 
+        rect = ("drawRect", self.generateRect(),  QColor(Qt.blue))
+        self.Lforms.append(rect)
+        self.update()
+        
+        # print("dessinRedRect")
+        oldState = (self.nbRectBlu, self.nbRectRed, self.bkcolor.getRgb())
+        self.nbRectBlu += 1
+        self.parent.logger.addRow(oldState, (self.nbRectBlu, self.nbRectRed, self.bkcolor.getRgb()), "dessinBlueRect")
+        
+    
+    def swapColor(self) : 
+        oldState = (self.nbRectBlu, self.nbRectRed, self.bkcolor.getRgb())
+        if self.bkcolor == QColor(Qt.blue): 
+            self.bkcolor = QColor(Qt.red)
+        else : 
+            self.bkcolor = QColor(Qt.blue)
+        self.parent.logger.addRow(oldState, (self.nbRectBlu, self.nbRectRed, self.bkcolor.getRgb()), "swapColor")
+
+    def dessinRect(self) : 
+        rect = ("drawRect", self.generateRect(),  self.bkcolor)
+        
+        self.Lforms.append(rect)
+        self.update()
+
+        oldState = (self.nbRectBlu, self.nbRectRed, self.bkcolor.getRgb())
+
+        #ADD LOG
+        # print("dessinRect")
+        if (self.bkcolor ==  QColor(Qt.blue)) :
+            self.nbRectBlu += 1
+        else : 
+            self.nbRectRed += 1
+        self.parent.logger.addRow(oldState, (self.nbRectBlu, self.nbRectRed, self.bkcolor.getRgb()), "dessinRect")
+
+    def getColor(self, c):
+        if c == QColor(Qt.blue):
+            return "blue"
+        else: return "red"
+    
+
