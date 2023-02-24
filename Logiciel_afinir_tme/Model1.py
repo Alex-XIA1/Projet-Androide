@@ -82,7 +82,7 @@ class MLPtrick():
 def getNo(X,Y, max_n):
     c = X.shape[1]//2
     X = X.astype(int)
-    newX = X[:2000]
+    newX = X
     ratio = 0.5
     coupe_n = int(len(newX)*ratio)
     etatInital = np.unique(newX[:,:c], axis=0)[:coupe_n]
@@ -90,7 +90,7 @@ def getNo(X,Y, max_n):
     i = 0 # number of added rows
     for e in etatInital: 
         # indices des etats impossibles depuis l'état e
-        indices = np.where(e != X[:,:c])[0][:10]
+        indices = np.where(e != X[:,:c])[0][:1]
         if len(indices) == 0: continue
         # On supprime les duplicatas
         etatFinal = np.unique(X[:,c:][indices], axis=0)
@@ -101,6 +101,7 @@ def getNo(X,Y, max_n):
         if i>=max_n:
             break
     L = np.array(L)
+    print("Generate %d data" %i)
     return np.concatenate((X, L), axis = 0), np.concatenate((Y, ["No"]*i), axis = 0)
     
 def flatten_list(_2d_list):
@@ -114,9 +115,10 @@ def flatten_list(_2d_list):
             flat_list.append(element)
     return flat_list    
         
-def show_stats(data):
+def show_stats(data, text = None):
     V,C = np.unique(data, return_counts = True)
-    print("========= Stats ==========")
+    if text == None:
+        print("========= Stats ==========")
     print(" Value  |  Counts")
     for i in range(len(C)):
         print(V[i], '  -  ', C[i])
@@ -126,7 +128,7 @@ warnings.simplefilter('ignore')
 
 def test():
     X, Y = getData()  
-    X,Y = getNo(X,Y, 500)
+    X,Y = getNo(X,Y)
     show_stats(Y)
     n, d  = X.shape
 
@@ -150,20 +152,28 @@ def testData(X,Y):
 
 
 def testRaccourci():
-    X, Y = getData()  
-    Y = np.array(["Yes"]*len(Y))
-    X,Y = getNo(X,Y, len(X))
+    X, Y = getData()
+    n,d = X.shape  
+    Y = np.array(["Yes"]*n)
+    X,Y = getNo(X,Y, 10000)
     testData(X,Y)
     show_stats(Y)
-    
+    ratio = 0.2
+    n_coupe = int(n*ratio)
+    Xtrain, Ytrain = X[:n_coupe], Y[:n_coupe]
+    Xtest, Ytest = X[n_coupe:], Y[n_coupe:]
+
     # Classifier
     cf = MLPtrick()
-    cf.fit(X,Y)
-    prediction = cf.predict(X)
-    print("\nscore: ", cf.score(X,Y))
-    for y in np.unique(Y):
-        indices = Y == y
-        print("Y: ", y, " - ", cf.score(X[indices],Y[indices]))
+    cf.fit(Xtrain,Ytrain)
+    prediction = cf.predict(Xtest)
+    print("\n============== score: ===================")
+    print("Paramters: train (%d), test(%d)" % (len(Ytrain), len(Ytest)))
+    print("train: ", cf.score(Xtrain,Ytrain))
+    print("test: ", cf.score(Xtest,Ytest))
+    for y in np.unique(Ytest):
+        indices = Ytest == y
+        print("Y: ", y, " - ", cf.score(Xtest[indices],Ytest[indices]))
         v,c = np.unique(prediction[indices][prediction[indices]!=y], return_counts=True)
         for i in range(len(v)):
             print("\t",v[i], " - ", c[i])
@@ -171,9 +181,5 @@ def testRaccourci():
     return cf
 
 
-
-
-
 if __name__=="__main__":
     testRaccourci()
-
