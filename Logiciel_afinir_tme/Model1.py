@@ -115,14 +115,13 @@ def flatten_list(_2d_list):
             flat_list.append(element)
     return flat_list    
         
-def show_stats(data, text = None):
+def show_stats(data, text = "Stats"):
     V,C = np.unique(data, return_counts = True)
-    if text == None:
-        print("========= Stats ==========")
+    print("\n========= %s ==========" %text)
     print(" Value  |  Counts")
     for i in range(len(C)):
         print(V[i], '  -  ', C[i])
-    print("==========================")
+    print("==================================")
 
 warnings.simplefilter('ignore')
 
@@ -151,15 +150,15 @@ def testData(X,Y):
     assert len(np.unique(X, axis=0)) == avant
 
 
-def testRaccourci():
-    X, Y = getData()
-    n,d = X.shape  
-    Y = np.array(["Yes"]*n)
-    X,Y = getNo(X,Y, 10000)
-    testData(X,Y)
-    show_stats(Y)
-    ratio = 0.2
+def testRaccourci(ratio = 0.2, render=False):
+    X, Y = getData() # Load data
+    Y = np.array(["Yes"]*len(Y)) # transform label
+    X,Y = getNo(X,Y, 10000) # generate false data
+    n,d = X.shape
     n_coupe = int(n*ratio)
+    indices = np.random.permutation(n)
+    X = X[indices]
+    Y = Y[indices]
     Xtrain, Ytrain = X[:n_coupe], Y[:n_coupe]
     Xtest, Ytest = X[n_coupe:], Y[n_coupe:]
 
@@ -167,6 +166,9 @@ def testRaccourci():
     cf = MLPtrick()
     cf.fit(Xtrain,Ytrain)
     prediction = cf.predict(Xtest)
+    if render:
+        show_stats(Ytrain, "Train Stats")
+        show_stats(Ytest, "Test Stats")
     print("\n============== score: ===================")
     print("Paramters: train (%d), test(%d)" % (len(Ytrain), len(Ytest)))
     print("train: ", cf.score(Xtrain,Ytrain))
