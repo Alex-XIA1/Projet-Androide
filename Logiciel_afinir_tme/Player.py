@@ -1,4 +1,4 @@
-from MainWindow import MainWindow
+from ..Dessin.MainWindow import MainWindow
 import sys
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
@@ -10,15 +10,13 @@ from threading import Thread
 import time
 import Logger
 
-class Player() : 
+class Player(): 
     def __init__(self) : 
         #Le player commence par créer une instance de l'application sur laquelle il va lancer des test
         #Remarque : Creation de l'app peut se faire ne dehors du player si vous voulez ¯\_(ツ)_/¯
         app = QApplication(sys.argv) 
         window = MainWindow()
         window.show()
-        
-        
 
         #children va recevoir la liste des QAction de l'application
         children = window.findChildren(QAction)

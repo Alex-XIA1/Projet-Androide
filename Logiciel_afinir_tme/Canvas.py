@@ -1,6 +1,7 @@
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
+import numpy as np
 
 
 class Canvas(QWidget):
@@ -55,6 +56,13 @@ class Canvas(QWidget):
                 rect = QRect(self.pStart.x(), self.pStart.y(), 0, 0)
                 self.Lforms.append([self.currentTool, rect, self.bkcolor])
     
+    def generateRect(self):
+        size = self.size()
+        width, height = size.width(), size.height()
+        x1, x2 = np.random.randint(0, [width, height])
+        return QRect(x1, x2, 10, 10)
+
+
     def mouseMoveEvent(self, event):
         if self.pStart != None:
             oldV = self.cursorPos - self.pStart
@@ -95,7 +103,11 @@ class Canvas(QWidget):
             getattr(painter, affiche)(form)
 
     def reset(self):
-        print("reset")
+        self.Lforms = []
+        self.selected = None
+        self.nbRectBlu = 0
+        self.nbRectRed = 0
+        self.bkcolor = QColor(Qt.blue)
 
     def add_object(self):
         affiche, form, c = self.Lforms[-1]
@@ -190,35 +202,41 @@ class Canvas(QWidget):
 #Fonctions pour le test du players
 
     def dessinRedRect(self) : 
-        rect = ("drawRect", QRect(10, 10, 10, 10) , QColor(Qt.red))
+        rect = ("drawRect", self.generateRect(),  QColor(Qt.red))
         self.Lforms.append(rect)
         self.update()
         
         # print("dessinRedRect")
-        oldState = (self.nbRectBlu, self.nbRectRed, self.currentTool)
+        oldState = (self.nbRectBlu, self.nbRectRed, self.bkcolor.getRgb())
         self.nbRectRed += 1
-        self.parent.logger.addRow(oldState, (self.nbRectBlu, self.nbRectRed, self.currentTool), "dessinRedRect")
+        self.parent.logger.addRow(oldState, (self.nbRectBlu, self.nbRectRed, self.bkcolor.getRgb()), "dessinRedRect")
+    
+    def dessinBlueRect(self) : 
+        rect = ("drawRect", self.generateRect(),  QColor(Qt.blue))
+        self.Lforms.append(rect)
+        self.update()
+        
+        # print("dessinRedRect")
+        oldState = (self.nbRectBlu, self.nbRectRed, self.bkcolor.getRgb())
+        self.nbRectBlu += 1
+        self.parent.logger.addRow(oldState, (self.nbRectBlu, self.nbRectRed, self.bkcolor.getRgb()), "dessinBlueRect")
         
     
     def swapColor(self) : 
-        oldState = (self.nbRectBlu, self.nbRectRed, self.currentTool)
+        oldState = (self.nbRectBlu, self.nbRectRed, self.bkcolor.getRgb())
         if self.bkcolor == QColor(Qt.blue): 
             self.bkcolor = QColor(Qt.red)
         else : 
             self.bkcolor = QColor(Qt.blue)
-        
-        # print("swapColor")
-        self.parent.logger.addRow(oldState, (self.nbRectBlu, self.nbRectRed, self.currentTool), "swapColor")
-        
-        
+        self.parent.logger.addRow(oldState, (self.nbRectBlu, self.nbRectRed, self.bkcolor.getRgb()), "swapColor")
 
     def dessinRect(self) : 
-        rect = ("drawRect", QRect(10, 10, 10, 10) , self.bkcolor)
+        rect = ("drawRect", self.generateRect(),  self.bkcolor)
         
         self.Lforms.append(rect)
         self.update()
 
-        oldState = (self.nbRectBlu, self.nbRectRed, self.currentTool)
+        oldState = (self.nbRectBlu, self.nbRectRed, self.bkcolor.getRgb())
 
         #ADD LOG
         # print("dessinRect")
@@ -226,11 +244,11 @@ class Canvas(QWidget):
             self.nbRectBlu += 1
         else : 
             self.nbRectRed += 1
-            
-        self.parent.logger.addRow(oldState, (self.nbRectBlu, self.nbRectRed, self.currentTool), "dessinRect")
-        
+        self.parent.logger.addRow(oldState, (self.nbRectBlu, self.nbRectRed, self.bkcolor.getRgb()), "dessinRect")
 
-
-
+    def getColor(self, c):
+        if c == QColor(Qt.blue):
+            return "blue"
+        else: return "red"
     
 
