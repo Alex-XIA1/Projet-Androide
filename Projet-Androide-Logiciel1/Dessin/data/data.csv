@@ -1,0 +1,4 @@
+Rien,Rien,drawRect,Rien,dessinRect
+drawRect,Rien,drawRect,blue,setBlue
+drawRect,blue,drawRect,blue,dessinBlueRect
+drawRect,blue,drawRect,red,dessinRedRect
