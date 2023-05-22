@@ -106,10 +106,7 @@ class AssistantGraph(QWidget) :
 
 
     def update(self, etatDep, etatFin, commande):
-        print("####################################")
-        print(self.sc_reco)
-        print(self.sc_used)
-        print("####################################")
+       
         #Movement = new State = new node on the graph and new edge (la commande de base)
         lastnode = self.last_state_node
         self.graph.add_node(lastnode + 1, label="{}".format(lastnode + 1), x = lastnode * 100, y = 0)

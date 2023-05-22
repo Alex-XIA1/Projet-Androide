@@ -1,4 +1,4 @@
-from MainWindow import MainWindow
+from Experience import MainWindow
 import sys
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *

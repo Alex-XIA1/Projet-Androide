@@ -66,12 +66,16 @@ class AssistantText(QWidget) :
         #self.setStyleSheet('background-color: lightblue;')
         self.setLayout(vbox)
 
+        self.legend = QLabel("SHORTCUT : NBR DE RECOMENDATIONS")
+        self.legend.setStyleSheet('font-size: 16px;')
+
         self.recomendations = QLabel()
         self.recomendations.setStyleSheet('font-size: 16px;')
         
         self.importantRecomendations = QLabel()
         self.importantRecomendations.setStyleSheet('color : red; font-weight: bold;font-size: 16px;')
         
+        vbox.addWidget(self.legend)
         vbox.addWidget(self.importantRecomendations)
         vbox.addWidget(self.recomendations)
 
