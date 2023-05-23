@@ -6,7 +6,7 @@ import numpy as np
 
 class Canvas(QWidget):
     def __init__(self, parent = None):
-        print("class Canvas")
+        print("class SimpleCanvas")
         super(Canvas,self).__init__()
 
         self.parent = parent
@@ -17,11 +17,16 @@ class Canvas(QWidget):
 
         # attributs d'affichage
         self.bkcolor = QColor(Qt.blue)
-        self.width = 1
+        self.width = 4
         self.painterTranslation = QPoint(0,0)
 
         # attributs memoire
+
+        # TODO positions x,y à randomiser
         self.rect = QRect(200,200, 100, 50)
+
+        # On brise la symetrie en superposant un rectangle par dessus
+        self.rect2 = QRect(210,210,100,50)
         self.color = "blue"
         self.form = "drawRect"
         self.angle = 0
@@ -41,6 +46,8 @@ class Canvas(QWidget):
             else: painter.setBrush(Qt.blue)
         if self.form != None:
             getattr(painter, self.form)(self.rect)
+            painter.setBrush(Qt.magenta)
+            getattr(painter, self.form)(self.rect2)
 
         
         #AFFICHAGE DES OBJECTIFS :
@@ -48,6 +55,7 @@ class Canvas(QWidget):
         #           (axe Z)
         painter.resetTransform()
         painter.setBrush(Qt.red)
+        self.selected_obj = -1
         for i in range (len(self.objectifs)) : 
             if (self.objectifs[i].contains(self.rect.center())) : 
                 painter.setBrush(Qt.green)
@@ -60,10 +68,13 @@ class Canvas(QWidget):
         painter.setBrush(Qt.cyan)
         painter.drawEllipse(self.rect.center(), 5, 5)
 
+        
+
     def reset(self):
-        self.color = None
-        self.form = None
-        self.rect = QRect(10,10, 100, 100)
+        # self.color = None
+        # self.form = None
+        self.rect = QRect(200,200, 100, 50)
+        self.rect2 = QRect(210,210,100,50)
         self.angle = 0
         self.update()
 
@@ -182,6 +193,7 @@ class Canvas(QWidget):
                 m = 'Big ' + direction
             etat1 = self.stateMove()
             self.rect.translate(v*scale)
+            self.rect2.translate(v*scale)
             etat2 = self.stateMove()
 
             self.parent.logger.addRow(etat1,etat2,m)
