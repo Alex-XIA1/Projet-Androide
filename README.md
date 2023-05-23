@@ -6,8 +6,20 @@ Alexandre Xia
 Christian Zhuang
 Nassim Ahmed Ali
 
-Encadrant: 
-Gilles BAILLY
+Encadrants: 
+Gilles BAILLY et Julien GORI
+
+Quelques points sur les différents répertoires :
+
+- Projet V4 correspond à la dernière version du projet avec des points d’ouverture
+qu’on a commencé à traiter et une interface utilisateur (expériences utilisateurs).
+- Projet V3 est la version sans l’interface utilisateur.
+- PlotTime correspond correspond à la version V3 avec la possibilité d’étudier les
+temps en fonction de la taille de l’historique (l’hyperparamètre size dans la partie
+AllAssistant dans MainWindow).
+- projet est la version fonctionnelle du projet sans les explorations des bonus (points
+d’ouverture).
+- Projet-Androide-Logiciel1 correspond au premier logiciel simplifié.
 
 == Contexte ==
 
